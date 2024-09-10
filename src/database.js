@@ -2,19 +2,16 @@ import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 dotenv.config();
 
-const client = new MongoClient(process.env.MONGO_URL);
+const mongoClient = new MongoClient(process.env.MONGO_URL);
 
-let docsCollection;
+let db;
 
 try {
-  await client.connect();
-
-  const db = client.db("webnotes");
-  docsCollection = db.collection("docs");
-
+  await mongoClient.connect();
+  db = mongoClient.db();
   console.log("Database connected!");
 } catch (err) {
   console.log(err);
 }
 
-export { docsCollection };
+export default db;
