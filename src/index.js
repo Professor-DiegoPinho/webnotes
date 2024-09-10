@@ -3,7 +3,8 @@ import url from "url";
 import path from "path";
 import http from "http";
 import { Server } from "socket.io";
-import db from "./database.js";
+import { createDocument, findDocument } from "./repository.js";
+import { setupEvents } from "./events.js";
 
 const app = express();
 
@@ -14,24 +15,18 @@ const publicDir = path.join(currentPath, "../..", "public");
 app.use(express.static(publicDir));
 
 app.get("*", async (req, res) => {
-  const documentName = req.path.substring(1);
-  // console.log(documentName);
-  let document = await db.collection("docs").findOne({
-    title: documentName
-  });
-
+  const title = req.path.substring(1);
+  let document = await findDocument(title);
   if (!document) {
-    document = await db.collection("docs").insertOne({
-      title: documentName,
-      content: ""
-    });
+    document = await createDocument(title, "");
   }
 
-  res.render("index", { document });
+  console.log("document", document);
+
+  return res.render("index", { document });
 });
 
 const port = process.env.PORT || 5000;
-
 const server = http.createServer(app);
 
 server.listen(port, () => {
@@ -39,20 +34,6 @@ server.listen(port, () => {
 });
 
 const io = new Server(server);
-
-io.on("connection", (socket) => {
-  socket.on("update-document", async ({ title, content }) => {
-    const filter = { title };
-    const updateDoc = {
-      $set: {
-        title,
-        content
-      }
-    }
-
-    await db.collection("docs").updateOne(filter, updateDoc);
-    io.emit("sync-document", content);
-  });
-});
+setupEvents(io);
 
 export default io;
