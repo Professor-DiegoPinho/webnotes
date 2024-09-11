@@ -2,7 +2,7 @@ services:
 
   postgres:
     image: postgres
-    container_name: mypostgres
+    container_name: webnotes-db
     ports:
       - 5433:5432
     networks:
@@ -10,9 +10,10 @@ services:
     env_file:
       - .env
     volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - webnotes-volume:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -q -d mydatabase -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -q -d postgres -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5

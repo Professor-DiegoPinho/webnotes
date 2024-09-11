@@ -15,13 +15,11 @@ const publicDir = path.join(currentPath, "../..", "public");
 app.use(express.static(publicDir));
 
 app.get("*", async (req, res) => {
-  const title = req.path.substring(1);
+  const title = req.path.substring(1); // FIX: favicon.ico
   let document = await findDocument(title);
   if (!document) {
     document = await createDocument(title, "");
   }
-
-  console.log("document", document);
 
   return res.render("index", { document });
 });
