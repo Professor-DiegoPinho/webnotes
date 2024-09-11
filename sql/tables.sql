@@ -1,5 +1,0 @@
-CREATE TABLE docs (
-  id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL UNIQUE,
-  content TEXT NOT NULL
-);
